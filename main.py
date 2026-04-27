@@ -12,9 +12,9 @@ OUTPUT_FOLDER = 'output_data' #+ '/transformed_' + CSV_FILE
 
 
 # Download filer
-download_file_wget(IRIS_DOWNLOAD_URL, INPUT_FOLDER)
+# download_file_wget(IRIS_DOWNLOAD_URL, INPUT_FOLDER)
 # download_file_subprocess(IRIS_DOWNLOAD_URL, INPUT_FOLDER)
-# download_file_requests(IRIS_DOWNLOAD_URL, INPUT_FOLDER)
+download_file_requests(IRIS_DOWNLOAD_URL, INPUT_FOLDER)
 
 # Filtrer din data
 filtered = filter_by_value(os.path.join(INPUT_FOLDER, CSV_FILE), column='species', value='Iris-setosa')

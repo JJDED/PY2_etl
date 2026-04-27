@@ -17,7 +17,7 @@ AES_KEY = b'12345678901234567890123456789012'
 FERNET_KEY = base64.urlsafe_b64encode(AES_KEY)
 
 
-# --- METODE 1: AES-GCM ---
+# AES-GCM
 def encrypt_gcm(plaintext: str) -> str:
     aesgcm = AESGCM(AES_KEY)
     nonce = os.urandom(12)  # Unik nonce for hver kryptering
@@ -29,8 +29,7 @@ def decrypt_gcm(token: str) -> str:
     nonce, ciphertext = raw[:12], raw[12:]
     return AESGCM(AES_KEY).decrypt(nonce, ciphertext, None).decode('utf-8')
 
-
-# --- METODE 2: AES-CBC ---
+# AES-CBC
 def encrypt_cbc(plaintext: str) -> str:
     iv = os.urandom(16)
     padder = padding.PKCS7(128).padder()
@@ -48,29 +47,13 @@ def decrypt_cbc(token: str) -> str:
     return (unpadder.update(padded) + unpadder.finalize()).decode('utf-8')
 
 
-# --- METODE 3: AES-CBC med Fernet ---
+# AES-CBC med Fernet
 def encrypt_fernet(plaintext: str) -> str:
     return Fernet(FERNET_KEY).encrypt(plaintext.encode('utf-8')).decode('utf-8')
 
 def decrypt_fernet(token: str) -> str:
     return Fernet(FERNET_KEY).decrypt(token.encode('utf-8')).decode('utf-8')
 
-
-# =============================================================================
-# VALG: Vi bruger AES-GCM fordi:
-#
-#   1. AUTENTIFICERING: GCM garanterer at data ikke er manipuleret efter
-#      kryptering. CBC og Fernet/CBC giver ikke denne garanti uden ekstra kode.
-#
-#   2. VORES DATATYPE er korte strenge ("5.1", "Iris-setosa"). CBC kræver
-#      manuel PKCS7 padding og er sårbar over for padding oracle angreb.
-#      GCM har ingen af disse problemer.
-#
-#   3. FERNET er praktisk men genererer unødigt lange tokens og inkluderer
-#      et timestamp vi ikke har brug for.
-#
-#   GCM er industristandard (bruges i TLS 1.3) og bedst egnet her.
-# =============================================================================
 
 def encrypt(plaintext: str) -> str:
     return encrypt_gcm(plaintext)
