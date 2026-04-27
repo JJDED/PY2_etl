@@ -1,21 +1,24 @@
-# visualize.py
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import mysql.connector
 import os
-
-from modules.dbload import get_connection  # genbrug den forbindelse der allerede virker
+from sqlalchemy import create_engine
+from modules.security import decrypt
 
 def fetch_dataframe_from_mysql(table_name='iris_setosa'):
-    conn = get_connection()
-    df = pd.read_sql(f"SELECT * FROM {table_name}", conn)
-    conn.close()
+    # SQLAlchemy engine — tilpas user/password/database til din opsætning
+    engine = create_engine('mysql+mysqlconnector://root:ditPassword@localhost/floradb')
     
-    # Konverter alle numeriske kolonner én gang her
+    df = pd.read_sql(f"SELECT * FROM {table_name}", engine)
+
+    # Dekrypter hver celle
+    df = df.map(lambda v: decrypt(str(v)) if v is not None else None)
+    print(f"[visualize] {len(df)} rækker hentet og dekrypteret.")
+
+    # Konverter numeriske kolonner til tal
     numeric_cols = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
     df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
-    
+
     return df
 
 # def fetch_dataframe_from_mysql(table_name='iris_setosa'):

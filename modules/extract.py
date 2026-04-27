@@ -8,7 +8,7 @@ def download_file_wget(url, output_folder):
     filename = os.path.basename(url)
     filepath = os.path.join(output_folder, filename)
     
-    # Slet eksisterende fil så wget ikke laver iris(1).csv
+    # overskriv eksisterende fil
     if os.path.exists(filepath):
         os.remove(filepath)
     
